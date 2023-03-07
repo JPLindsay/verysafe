@@ -30,12 +30,14 @@ def redos():
   return str(matches)
 
 
+# NOT CAUGHT
 @app.route("/delete/<ident>")
 def delete_by_id(ident):
   """No input sanitization is done, so the user can delete whatever they want."""
   db.collection.delete_one({"_id": ident})
 
 
+# DOES NOT FIND SQL INJECTION
 @app.route("/unsafe-find", methods=["POST"])
 def unsafe_find():
   """Find and return a document via unsafe eval()."""
@@ -43,6 +45,7 @@ def unsafe_find():
   return str(db.collection.find_one(match_doc))
 
 
+# DOES NOT CATCH UNSAFE IMPORT
 @app.route("/unsafe-eval", methods=["GET"])
 def unsafe_eval():
   """Also has local file inclusion."""
@@ -61,6 +64,7 @@ def unsafe_exec():
   return out.read()
 
 
+# IGNORE
 @app.route("/path-traversal", methods=["GET"])
 def path_traversal():
   path = unescape(request.args.get("path", ""))
@@ -68,6 +72,7 @@ def path_traversal():
   return out.read()
 
 
+# PATH TRAVERSAL NOT CAUGHT
 @app.route("/os-access-violation", methods=["GET"])
 def os_access_violation():
   if filename := request.args.get("filename"):
@@ -79,6 +84,7 @@ def os_access_violation():
   abort(400)
 
 
+# NOT CAUGHT
 @app.route("/sql-injection", methods=["GET"])
 def sql_injection():
   if query := request.args.get("query"):
