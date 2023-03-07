@@ -20,10 +20,17 @@ db = client.fake
 # ACCURATE FINDINGS
 
 
-@app.get("/xss")
-async def xss(stuff: str, response_class=HTMLResponse):
+@app.get("/xss", response_class=HTMLResponse)
+async def xss(stuff: str):
   """XSS vulnerability."""
   return HTMLResponse(content=stuff, status_code=200)
+
+
+@app.get("/stored-xss/{ident}", response_class=HTMLResponse)
+async def stored_xss(ident: str):
+  """Stored XSS vulnerability."""
+  content = db.collection.find_one({"_id": ident})
+  return HTMLResponse(content=content, status_code=200)
 
 
 @app.get("/ReDoS")

@@ -21,6 +21,12 @@ def xss():
   return stuff
 
 
+@app.route("/stored-xss/<ident>")
+def stored_xss(ident):
+  content = db.collection.find_one({"_id": ident})
+  return content["content"]
+
+
 @app.route("/ReDoS", methods=["GET", "POST"])
 def redos():
   """Has a ReDoS vulnerability."""

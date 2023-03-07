@@ -16,6 +16,12 @@ app.get("/xss", (req, res) => {
   res.send(stuff);
 });
 
+app.get("/stored-xss/:ident", (req, res) => {
+  // Stored XSS vulnerability
+  const doc = db.collection.findOne({ _id: req.params.ident });
+  res.send(doc.content);
+});
+
 app.get("/ReDoS", (req, res) => {
   // Regular expression denial of service
   const pattern = req.query.pattern;
@@ -61,7 +67,7 @@ app.get("/unsafe-import", (req, res) => {
 });
 
 app.get("/delete/:ident", (req, res) => {
-  db.collection.deleteOne({ _id: ident });
+  db.collection.deleteOne({ _id: req.params.ident });
   res.json({ status: "ok" });
 });
 
