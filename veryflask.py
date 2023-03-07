@@ -44,12 +44,22 @@ def delete_by_id(ident):
   return {"status": "ok"}
 
 
-# DOES NOT FIND SQL INJECTION
+# DOES NOT FIND NOSQL INJECTION
 @app.route("/nosql-unsafe-find", methods=["POST"])
 def unsafe_find():
-  """Find and return a document via unsafe eval()."""
   query = request.json
   return {"found": db.collection.find_one(query)}
+
+
+@app.route("/nosql-injection", methods=["GET"])
+def nosql_injection():
+  if not (collection := request.args.get("collection")):
+    abort(400)
+  if not (command := request.args.get("command")):
+    abort(400)
+
+  db.command(command, collection)
+  return {"status": "ok"}
 
 
 # DOES NOT CATCH UNSAFE IMPORT

@@ -91,6 +91,7 @@ async def delete_by_id(ident: str):
 @app.post("/nosql-injection")
 async def nosql_injection(command: str = Form(), collection: str = Form()):
   db.command(command, collection)
+  return {"status": "ok"}
 
 
 if __name__ == "__main__":
