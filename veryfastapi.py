@@ -8,7 +8,7 @@ from urllib.parse import unquote_plus as unescape
 
 import psycopg2
 import uvicorn
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
 from fastapi.exceptions import HTTPException
 from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
@@ -63,9 +63,10 @@ async def sql_injection(query: str):
 
 
 # CodeQL finds the code injection but not the NoSQL vuln
-@app.post("/nosql-unsafe-find-and-code-injection")
-async def nosql_unsafe_find(params: str = Form()):
-  return {"found": db.collection.find_one(eval(params))}
+@app.post("/nosql-unsafe-find")
+async def nosql_unsafe_find(request: Request):
+  query = await request.json()
+  return {"found": db.collection.find_one(query)}
 
 
 # CodeQL finds the code injection but not the unsafe import vuln
