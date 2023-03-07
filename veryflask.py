@@ -14,6 +14,13 @@ client = MongoClient()
 db = client.fake
 
 
+@app.route("/xss")
+def xss():
+  """XSS vulnerability."""
+  stuff = request.args.get("stuff")
+  return stuff
+
+
 @app.route("/ReDoS", methods=["GET", "POST"])
 def redos():
   """Has a ReDoS vulnerability."""
@@ -26,8 +33,7 @@ def redos():
   else:
     abort(404)
 
-  matches = re.findall(pattern, search)
-  return str(matches)
+  return {"matches": re.findall(pattern, search)}
 
 
 # NOT CAUGHT
@@ -35,6 +41,7 @@ def redos():
 def delete_by_id(ident):
   """No input sanitization is done, so the user can delete whatever they want."""
   db.collection.delete_one({"_id": ident})
+  return {"status": "ok"}
 
 
 # DOES NOT FIND SQL INJECTION
@@ -42,7 +49,7 @@ def delete_by_id(ident):
 def unsafe_find():
   """Find and return a document via unsafe eval()."""
   match_doc = eval(request.form["doc"])
-  return str(db.collection.find_one(match_doc))
+  return {"found": db.collection.find_one(match_doc)}
 
 
 # DOES NOT CATCH UNSAFE IMPORT
@@ -53,7 +60,7 @@ def unsafe_eval():
     importlib.import_module(include)
 
   command = request.args.get("command", "")
-  return str(eval(command))
+  return {"output": eval(command)}
 
 
 @app.route("/unsafe-exec", methods=["GET"])
@@ -61,7 +68,7 @@ def unsafe_exec():
   """Could also trigger path traversal."""
   cmd = unescape(request.args.get("exec", "ls"))
   out = os.popen(cmd)
-  return out.read()
+  return {"output": out.read()}
 
 
 # PATH TRAVERSAL NOT CAUGHT
@@ -70,8 +77,8 @@ def os_access_violation():
   if filename := request.args.get("filename"):
     if os.path.exists(filename):
       os.unlink(filename)
-      return "Deleted"
-    return "File doesn't exist!"
+      return {"deleted": True}
+    return {"deleted": False}
 
   abort(400)
 
@@ -83,6 +90,6 @@ def sql_injection():
     with psycopg2.connect("postgresql://fake:F4k3p4SsW0rD@example.com/fakebase") as conn:
       cur = conn.cursor()
       cur.execute(query)
-    return "Done!"
+    return {"status": "ok"}
 
   abort(400)
