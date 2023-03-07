@@ -10,6 +10,7 @@ import psycopg2
 import uvicorn
 from fastapi import FastAPI, Form
 from fastapi.exceptions import HTTPException
+from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 
 app = FastAPI()
@@ -17,6 +18,12 @@ client = MongoClient()
 db = client.fake
 
 # ACCURATE FINDINGS
+
+
+@app.get("/xss")
+async def xss(stuff: str, response_class=HTMLResponse):
+  """XSS vulnerability."""
+  return HTMLResponse(content=stuff, status_code=200)
 
 
 @app.get("/ReDoS")
@@ -52,7 +59,7 @@ async def sql_injection(query: str):
     cur = conn.cursor()
     cur.execute(query)
 
-  return {"status": "OK"}
+  return {"status": "ok"}
 
 
 # CodeQL finds the code injection but not the NoSQL vuln
@@ -77,7 +84,7 @@ async def delete_by_id(ident: str):
   """No input sanitization done, allowing the user to delete arbitrary items
     from the database."""
   db.collection.delete_one({"_id": ident})
-  return {"status": "OK"}
+  return {"status": "ok"}
 
 
 @app.post("/nosql-injection")
