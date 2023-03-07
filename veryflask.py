@@ -64,16 +64,8 @@ def unsafe_exec():
   return out.read()
 
 
-# IGNORE
-@app.route("/path-traversal", methods=["GET"])
-def path_traversal():
-  path = unescape(request.args.get("path", ""))
-  out = os.popen(f"ls {path}")
-  return out.read()
-
-
 # PATH TRAVERSAL NOT CAUGHT
-@app.route("/os-access-violation", methods=["GET"])
+@app.route("/os-access-violation-and-path-traversal", methods=["GET"])
 def os_access_violation():
   if filename := request.args.get("filename"):
     if os.path.exists(filename):
@@ -88,11 +80,9 @@ def os_access_violation():
 @app.route("/sql-injection", methods=["GET"])
 def sql_injection():
   if query := request.args.get("query"):
-    conn = psycopg2.connect()
-    cur = conn.cursor()
-    cur.execute(query)
-    conn.commit()
-    conn.close()
+    with psycopg2.connect("postgresql://fake:F4k3p4SsW0rD@example.com/fakebase") as conn:
+      cur = conn.cursor()
+      cur.execute(query)
     return "Done!"
 
   abort(400)
