@@ -48,7 +48,7 @@ app.get("/os-access-violation-and-path-traversal", (req, res) => {
 
 app.get("/sql-injection", (req, res) => {
   const client = new Client("postgresql://fake:F4k3p4SsW0rD@example.com/fakebase");
-  const query = req.query.sql;
+  const sql = req.query.sql;
   client.query(sql, null, (err, result) => {
     res.json({ status: "ok" });
   });

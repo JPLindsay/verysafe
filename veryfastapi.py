@@ -9,7 +9,6 @@ from urllib.parse import unquote_plus as unescape
 import psycopg2
 import uvicorn
 from fastapi import FastAPI, Form, Request
-from fastapi.exceptions import HTTPException
 from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 
